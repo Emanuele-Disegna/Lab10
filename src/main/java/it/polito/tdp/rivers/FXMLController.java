@@ -8,6 +8,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.rivers.model.Model;
+import it.polito.tdp.rivers.model.River;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -25,7 +27,7 @@ public class FXMLController {
     private URL location;
 
     @FXML // fx:id="boxRiver"
-    private ComboBox<?> boxRiver; // Value injected by FXMLLoader
+    private ComboBox<River> boxRiver; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtStartDate"
     private TextField txtStartDate; // Value injected by FXMLLoader
@@ -48,6 +50,38 @@ public class FXMLController {
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
 
+    @FXML
+    void handleFiumeSelezionato(ActionEvent event) {
+    	River r = boxRiver.getValue();
+    	
+    	txtStartDate.setText(model.getStartDate(r).toString());
+    	txtEndDate.setText(model.getEndDate(r).toString());
+    	txtNumMeasurements.setText(model.getNumMeasurements(r)+"");
+    	txtFMed.setText(model.getAvg(r)+"");
+    	
+    }
+    
+    @FXML
+    void handleSimula(ActionEvent event) {
+    	River r = boxRiver.getValue();
+    	txtResult.clear();
+    	
+    	double k = 0;
+    	
+    	try {
+    		k = Double.parseDouble(txtK.getText());
+    		System.out.println("fino a qui ok1");
+    	} catch (NumberFormatException e) {
+    		txtResult.setText("Inserire un K numerico");
+    		return;
+    	}
+    	
+    	model.simula(r, k);
+    	
+    	txtResult.appendText("Il numero di giorni senza erogazione minima è: "+model.getNumGiorniSenzaAcqua()+"\n");
+    	txtResult.appendText("La capacita media all'interno del bacino è: "+model.getCapacitaMedia());
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert boxRiver != null : "fx:id=\"boxRiver\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -62,5 +96,7 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	
+    	boxRiver.getItems().addAll(model.getRivers());
     }
 }
